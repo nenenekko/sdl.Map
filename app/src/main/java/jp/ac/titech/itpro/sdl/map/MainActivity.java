@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +37,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private TextView infoView;
     private GoogleMap map;
+    private Button button;
+    private boolean map_ok_flag = false;
+    private LatLng ll;
 
     private FusedLocationProviderClient locationClient;
     private LocationRequest request;
@@ -57,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         request = LocationRequest.create();
         request.setInterval(10000L);
-        request.setFastestInterval(5000L);
+        request.setFastestInterval(1000L);
         request.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         callback = new LocationCallback() {
@@ -65,15 +70,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 Log.d(TAG, "onLocationResult");
                 Location location = locationResult.getLastLocation();
-                LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
+                ll = new LatLng(location.getLatitude(), location.getLongitude());
                 infoView.setText(getString(R.string.latlng_format, ll.latitude, ll.longitude));
                 if (map == null) {
                     Log.d(TAG, "onLocationResult: map == null");
                     return;
                 }
-                map.animateCamera(CameraUpdateFactory.newLatLng(ll));
             }
         };
+
+        button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public  void onClick(View v){
+                Log.d("debug","ddddddd");
+                if(map_ok_flag){
+                    map.animateCamera(CameraUpdateFactory.newLatLng(ll));
+                }
+            }
+        });
     }
 
     @Override
@@ -122,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return;
             }
         }
+        map_ok_flag = true;
         locationClient.requestLocationUpdates(request, callback, null);
     }
 
